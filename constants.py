@@ -48,7 +48,9 @@ BUTTON_POSITIONS = {
     "Undo": BUTTON_UNDO,
     "Draw": BUTTON_DRAW,
     "Stop": BUTTON_STOP,
+}
 
+BUTTON_PIECE_POSITIONS = {
     "queen": BUTTON_QUEEN,
     "rook": BUTTON_ROOK,
     "knight": BUTTON_KNIGHT,

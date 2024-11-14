@@ -630,7 +630,7 @@ class ChessGame:
 
     def draw_promotion_buttons(self):
         for piece_name in (["queen", "rook", "bishop", "knight"]):
-            button_position = BUTTON_POSITIONS[piece_name]
+            button_position = BUTTON_PIECE_POSITIONS[piece_name]
 
             button = pygame.Rect(button_position, (PAWN_BUTTON_WIDTH, PAWN_BUTTON_HEIGHT))
             pygame.draw.rect(self.screen, BUTTON_COLOR, button)
