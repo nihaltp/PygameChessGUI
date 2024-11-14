@@ -14,8 +14,6 @@ from constants import *
 from variables import *
 from chess_assets import *
 
-from icecream import ic
-
 class ChessGame:
     def __init__(self):
         try:
@@ -60,6 +58,8 @@ class ChessGame:
 
         self.directory = directory
 
+        self.first_run = True
+    
     def play_game(self):
         while not self.board.is_game_over():
             self.game(self.board)
@@ -204,9 +204,33 @@ class ChessGame:
         Main game loop method to update and draw the chessboard.
         """
         self.update(board)
+        if self.first_run:
         self.draw_chessboard(ROWS, COLUMNS)
+            self.first_run = False
+        elif self.move:
+            self.draw_move(self.move)
+            
+            if not self.previous_move:
+                return
+            self.draw_move(self.previous_move.uci())
+        
         pygame.display.flip() # update the display
 
+    def draw_move(self, move):
+        # FIX: The Yellow Border is Not disappearing
+        start_square = move[:2] 
+        end_square = move[2:]
+        
+        if (start_square):
+            start_value = SQUARES.index(start_square)
+            start_row, start_column = divmod(start_value, 8)
+            self.draw_square(start_row, start_column)
+        
+        if (end_square):
+            end_value = SQUARES.index(end_square)
+            end_row, end_column = divmod(end_value, 8)
+            self.draw_square(end_row, end_column)
+    
     def update(self, board):
         board_value = str(board).replace(" ", "").replace("\n", "")
         for i, j in zip(board_value, SQUARES):
@@ -423,6 +447,9 @@ class ChessGame:
         The function then calculates the maximum number of moves between the two players
         and iterates through the moves using a for loop.
         """
+        self.first_run = True
+        previous_move = self.previous_move
+        
         board_history = chess.Board()
         self.game(board_history)
         pygame.time.delay(500) # pause for 0.5 seconds
@@ -434,6 +461,9 @@ class ChessGame:
             if i < len(self.player2_moves):
                 move = self.player2_moves[i]
                 self.replay_game(move, board_history)
+            
+        self.first_run = False
+        self.previous_move = previous_move
 
     def replay_game(self, move, board):
         move = chess.Move.from_uci(move)
@@ -441,6 +471,7 @@ class ChessGame:
             board.push(move)
             self.game(board)
             pygame.time.delay(500)  # pause for 0.5 second
+            self.previous_move = move
 
     def valid_moves(self):
         for move in self.board.legal_moves:
@@ -451,6 +482,7 @@ class ChessGame:
             self.highlight_move(end_square, GOLD)
             pygame.display.flip()
             pygame.time.delay(500) # wait
+        self.draw_chessboard(ROWS, COLUMNS) # clear the chessboard at the end
 
     def undo(self):
         if len(self.player1_moves) >= 1 and len(self.player2_moves) >= 1:
