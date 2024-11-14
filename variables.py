@@ -1,3 +1,8 @@
+# Display size
+screen_height = 700.0 # Height of the Pygame window
+screen_width = 700.0 # Width of the Pygame window
+square_width = 400.0 # Height and Width of each square
+
 # Move history folder
 directory = "game_records"
 

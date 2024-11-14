@@ -25,8 +25,12 @@ class ChessGame:
             print("Please install pygame and try again.")
             sys.exit(1)
 
+        self.screen_height = screen_height
+        self.screen_width = screen_width
+        self.square_width = square_width
+        
         # Create the Pygame window
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         pygame.display.set_caption("AI Chess")
         # Pygame font setup
         pygame.font.init()
@@ -223,7 +227,7 @@ class ChessGame:
         columns (int): Number of columns on the chessboard.
         """
         self.screen.fill(BACKGROUND)
-        square_rect = pygame.Rect(CHESS_X - 2, CHESS_Y - 2, SQUARE_WIDTH + 4, SQUARE_WIDTH + 4)
+        square_rect = pygame.Rect(CHESS_X - 2, CHESS_Y - 2, self.square_width + 4, self.square_width + 4)
         pygame.draw.rect(self.screen, BOARD_BORDER, square_rect, width = 2 )
 
         # Draw each square independently
