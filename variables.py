@@ -6,7 +6,7 @@ stockfish_path = r"stockfish\stockfish-windows-x86-64-sse41-popcnt.exe"  # Path 
 skill_level = 10  # Adjust the skill level here (0-20)
 depth = 15  # Adjust the depth limit here (lower depth = easier, higher = harder)
 time_stockfish = 2.0  # Time in seconds for stockfish
-time_limit = 2.0 # Time that can be added to stockfish
+time_limit = 2 # Time that can be added to stockfish
 
 # Draw text
 draw_offer_text = "Do you want to offer a draw?"

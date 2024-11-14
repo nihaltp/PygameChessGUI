@@ -7,6 +7,7 @@ This project is a chess GUI built using Pygame. As a beginner, I'm developing it
 - [Setup Instructions](#setup-instructions)
 - [How to Play](#how-to-play)
 - [Features](#features)
+- [Features coming soon](#features-coming-soon)
 - [Contributing](#contributing)
 
 
@@ -78,23 +79,26 @@ Start the Game: Run the main.py file to start the game.
     - Piece Movement
     - Piece Selection
     - Game History
-    - Save/Load Game [Coming soon]
-    - Timer [Coming soon]
-    - Settings [Coming soon]
-    - Customizable Board [Coming soon]
-    - Customizable Background [Coming soon]
-    - Customizable Pieces [Coming soon]
-    - Customizable Colors [Coming soon]
-    - Customizable Font [Coming soon]
-    - Customizable Timer [Coming soon]
-    - Customizable AI [Coming soon]
-    - Customizable Objective [Coming soon]
-    - Customizable Game History [Coming soon]
-    - Customizable Game Over [Coming soon]
+
+### Features coming soon
+
+    - Save/Load Game
+    - Timer
+    - Settings
+    - Customizable Board
+    - Customizable Background
+    - Customizable Pieces
+    - Customizable Colors
+    - Customizable Font
+    - Customizable Timer
+    - Customizable AI
+    - Customizable Objective
+    - Customizable Game History
+    - Customizable Game Over
 
 ## Contributing
 
-Contributions are welcome! If you'd like to contribute, please fork the repository and submit a pull request.
+Contributions are welcome!
 
 
 ![Python](https://img.shields.io/badge/python-blue)
