@@ -102,18 +102,15 @@ class ChessGame:
                     if self.draw(name_text, draw_accept_text):
                         self.history()
                         self.save_to_file()
-                        pygame.quit()
-                        sys.exit(0)
+                        self.quit_game()
                 if play_result.resigned:
                     self.history()
                     self.save_to_file()
-                    pygame.quit()
-                    sys.exit(0)
+                    self.quit_game()
                 break
             except chess.engine.EngineError as e:
                 print(f"Error initializing Stockfish engine: {e}")
-                pygame.quit()
-                sys.exit(1)
+                self.quit_game(1)
             except TimeoutError:
                 self.time_stockfish += 1
             finally:
@@ -167,8 +164,7 @@ class ChessGame:
             self.__init__()
             self.play_game()
         else:
-            pygame.quit()
-            sys.exit()
+            self.quit_game()
 
     def get_name(self):
         # Get Player names
@@ -182,8 +178,7 @@ class ChessGame:
         while input_active:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self.quit_game()
                 elif event.type == pygame.KEYDOWN:
                     if event.unicode == "\r" and input_text:
                         input_active = False
@@ -363,8 +358,7 @@ class ChessGame:
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                self.quit_game()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.handle_mouse_click()
 
@@ -415,11 +409,9 @@ class ChessGame:
             if self.is_draw():
                 self.history()
                 self.save_to_file()
-                pygame.quit()
-                sys.exit(0)
+                self.quit_game()
         if button_name == "Stop":
-            pygame.quit()
-            sys.exit()
+            self.quit_game()
 
     def history(self):
         """
@@ -618,8 +610,7 @@ class ChessGame:
     def handle_promotion(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                self.quit_game()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 for i, piece_name in enumerate(["queen", "rook", "bishop", "knight"]):
@@ -628,6 +619,10 @@ class ChessGame:
                             button_position[1] <= mouse_y <= button_position[1] + PAWN_BUTTON_HEIGHT:
                         return ["q", "r", "b", "n"][i]  # Return the selected piece
         return None
+    
+    def quit_game(self, status_code= 0):
+        pygame.quit()
+        sys.exit(status_code)
 
 if __name__ == "__main__":
     game = ChessGame()
