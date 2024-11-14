@@ -205,7 +205,7 @@ class ChessGame:
         """
         self.update(board)
         if self.first_run:
-        self.draw_chessboard(ROWS, COLUMNS)
+            self.draw_chessboard()
             self.first_run = False
         elif self.move:
             self.draw_move(self.move)
@@ -237,7 +237,7 @@ class ChessGame:
             # Get the piece image from the dictionary
             chessboard[j] = PIECE_VALUE.get(i)
 
-    def draw_chessboard(self, ROWS, COLUMNS):
+    def draw_chessboard(self):
         """
         Draw the chessboard on the screen.
 
@@ -250,8 +250,8 @@ class ChessGame:
         pygame.draw.rect(self.screen, BOARD_BORDER, square_rect, width = 2 )
 
         # Draw each square independently
-        for row in range(ROWS):
-            for column in range(COLUMNS):
+        for row in range(BOARD_SIZE):
+            for column in range(BOARD_SIZE):
                 self.draw_square(row, column)
 
         self.draw_rows()
@@ -397,7 +397,7 @@ class ChessGame:
 
     def handle_square_click(self, column, row):
         # Check if the click is within the chessboard boundaries
-        if 0 <= row < ROWS and 0 <= column < COLUMNS:
+        if 0 <= row < BOARD_SIZE and 0 <= column < BOARD_SIZE:
             value = int(row*8 + column)
             clicked_square = SQUARES[value]
             self.handle_valid_click(clicked_square)
@@ -475,14 +475,14 @@ class ChessGame:
 
     def valid_moves(self):
         for move in self.board.legal_moves:
-            self.draw_chessboard(ROWS, COLUMNS) # clear the chessboard
+            self.draw_chessboard() # clear the chessboard
             start_square = move.uci()[:2] 
             end_square = move.uci()[2:]
             self.highlight_move(start_square, RED)
             self.highlight_move(end_square, GOLD)
             pygame.display.flip()
             pygame.time.delay(500) # wait
-        self.draw_chessboard(ROWS, COLUMNS) # clear the chessboard at the end
+        self.draw_chessboard() # clear the chessboard at the end
 
     def undo(self):
         if len(self.player1_moves) >= 1 and len(self.player2_moves) >= 1:
@@ -522,6 +522,7 @@ class ChessGame:
         if not self.draw(name_text, draw_accept_text):
             return False
         
+        self.draw_chessboard()
         return True
 
     def draw(self, name_text, draw_text):
@@ -625,6 +626,7 @@ class ChessGame:
         # Perform the move with the selected piece
         move = self.move + selected_piece
         self.board.push(chess.Move.from_uci(move))
+        self.first_run = True
 
     def draw_promotion_buttons(self):
         for piece_name in (["queen", "rook", "bishop", "knight"]):

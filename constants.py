@@ -1,9 +1,8 @@
 from variables import screen_height, screen_width, square_width
 
 # Constants
-ROWS = 8
-COLUMNS = 8
-SQUARE_SIZE = square_width // COLUMNS
+BOARD_SIZE = 8
+SQUARE_SIZE = square_width // BOARD_SIZE
 
 # Where to start the chess board
 CHESS_X = (screen_width - square_width)/2
