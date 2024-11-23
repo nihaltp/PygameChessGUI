@@ -465,21 +465,22 @@ class ChessGame:
                 self.button_action(button_name)
     
     def button_action(self, button_name):
-        if button_name == "History":
-            self.history()
-        if button_name == "Hint":
-            self.valid_moves()
-        if button_name == "Undo":
-            self.undo()
-        if button_name == "Draw":
-            if self.is_draw():
+        match button_name:
+            case "History":
                 self.history()
-                self.save_to_file()
+            case "Hint":
+                self.valid_moves()
+            case "Undo":
+                self.undo()
+            case "Draw":
+                if self.is_draw():
+                    self.history()
+                    self.save_to_file()
+                    self.quit_game()
+                self.draw_chessboard()
+            case "Stop":
                 self.quit_game()
-            self.draw_chessboard()
-            return
-        if button_name == "Stop":
-            self.quit_game()
+        self.highlight = False
     
     def history(self):
         """
