@@ -220,7 +220,7 @@ class ChessGame:
             self.first_run = False
         elif self.move:
             if self.move != self.drawn_move:
-            self.draw_move(self.move)
+                self.draw_move(self.move)
                 self.drawn_move = self.move
             
             if not self.previous_move:
