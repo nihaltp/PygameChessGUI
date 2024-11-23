@@ -22,6 +22,9 @@ class ChessGame:
             print(f"Error initializing Pygame: {e}")
             print("Please install pygame and try again.")
             sys.exit(1)
+            
+        # Track areas that need redrawing
+        self.dirty_rects = []
         
         self.screen_height = screen_height
         self.screen_width = screen_width
@@ -43,6 +46,8 @@ class ChessGame:
         
         self.move = ""
         self.previous_move = ""
+        self.drawn_move: str = ""
+        self.drawn_previous_move: str = ""
         self.check = False
         self.highlight = False
         
@@ -110,6 +115,7 @@ class ChessGame:
                 break
             except chess.engine.EngineError as e:
                 print(f"Error initializing Stockfish engine: {e}")
+                self.draw_text_box(f"Error initializing Stockfish engine: {e}")
                 self.quit_game(1)
             except TimeoutError:
                 self.time_stockfish += 1
@@ -139,18 +145,21 @@ class ChessGame:
                 if not self.check_game_status():
                     return False
             except ValueError as e:
-                print(f"Invalid move: {e}")
+                self.draw_text_box(f"Invalid move: {e}")
         return True
     
     def check_game_status(self):
         if self.board.is_checkmate():
             print(f"\033[91mCheckmate!\033[0m {self.players[self.current_player]} wins.")
+            self.draw_text_box(f"\033[91mCheckmate!\033[0m {self.players[self.current_player]} wins.")
             return False
         if self.board.is_stalemate():
             print("Stalemate! The game is a draw.")
+            self.draw_text_box("Stalemate! The game is a draw.")
             return False
         if self.board.is_insufficient_material():
             print("Insufficient material! The game is a draw.")
+            self.draw_text_box("Insufficient material! The game is a draw.")
             return False
         return True
     
@@ -158,7 +167,9 @@ class ChessGame:
         self.history()
         self.save_to_file()
         print("\033[93mGame over.\033[0m")
+        self.draw_text_box("\033[93mGame over.\033[0m")
         print(f"\033[95mResult: {self.board.result()}\033[0m")
+        self.draw_text_box(f"\033[95mResult: {self.board.result()}\033[0m")
         play_again = self.input_text("Do you want to play again? (Y/N): ", (200, 100))
         if play_again.lower() in ["yes", "y"]:
             self.__init__()
@@ -208,24 +219,40 @@ class ChessGame:
             self.draw_chessboard()
             self.first_run = False
         elif self.move:
+            if self.move != self.drawn_move:
             self.draw_move(self.move)
+                self.drawn_move = self.move
             
             if not self.previous_move:
                 return
+            if (self.move == self.previous_move.uci()):
+                return
+            if(self.drawn_previous_move == self.previous_move.uci()):
+                return
             self.draw_move(self.previous_move.uci())
+            self.drawn_previous_move = self.previous_move.uci()
         
         pygame.display.flip() # update the display
     
     def draw_move(self, move):
         # FIX: The Yellow Border is Not disappearing
+        # Track squares that need updating
         start_square = move[:2] 
         end_square = move[2:]
         
-        if (start_square):
-            self.update_square(start_square)
+        if start_square:
+            rect = self.update_square(start_square)
+            if rect:
+                self.dirty_rects.append(rect)
         
-        if (end_square):
-            self.update_square(end_square)
+        if end_square:
+            rect = self.update_square(end_square)
+            if rect:
+                self.dirty_rects.append(rect)
+        
+        # Only update the dirty rectangles
+        pygame.display.update(self.dirty_rects)
+        self.dirty_rects.clear()
     
     def update_square(self, square: str):
         """
@@ -234,14 +261,14 @@ class ChessGame:
         Parameters:
         square (str): A string representing the square on the chessboard (e.g., 'a1', 'h8').
         
-        This function calculates the row and column of the provided square and calls
-        draw_square() to update its appearance on the game display.
+        Returns:
+        pygame.Rect: The rectangle area that should be updated
         """
         if len(square) != 2:
             square = square[:2]
         value = SQUARES.index(square)
         row, column = divmod(value, 8)
-        self.draw_square(row, column)
+        return self.draw_square(row, column)
     
     def update(self, board):
         board_value = str(board).replace(" ", "").replace("\n", "")
@@ -271,15 +298,18 @@ class ChessGame:
         self.draw_buttons()
     
     def draw_square(self, row, column):
+        # Draw square
         color = WHITE if (row + column) % 2 == 0 else GREY
         square_rect = pygame.Rect(CHESS_X + column * SQUARE_SIZE, CHESS_Y + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
         pygame.draw.rect(self.screen, color, square_rect)
         
-        # Check chessboard configuration and blit the corresponding image
+        # Draw piece
         value = row * 8 + column
         piece_key = SQUARES[value]
         piece = chessboard[piece_key]
         self.draw_piece(piece, square_rect)
+        
+        return square_rect
     
     def draw_piece(self, piece, square_rect):
         """
@@ -498,30 +528,23 @@ class ChessGame:
     
     def undo(self):
         if len(self.player1_moves) >= 1 and len(self.player2_moves) >= 1:
-            if len(self.player1_moves) >= 1:
-                self.board.pop()  # Undo last move on the board
-                last_move_player1 = self.player1_moves.pop()  # Remove Player 1's last move
-                # TODO: Draw the text on pygame window
-                print(f"{self.players[0]} undid their last move: {last_move_player1}")
-            else:
-                last_move_player1 = None
-            
-            if len(self.player2_moves) >= 1:
-                last_move_player2 = self.player2_moves.pop()  # Remove Player 2's last move
-                self.board.pop()  # Undo last move on the board
-                # TODO: Draw the text on pygame window
-                print(f"{self.players[1]} undid their last move: {last_move_player2}")
-            else:
-                last_move_player2 = None
+            self.undo_move(self.player1_moves, 0)
+            self.undo_move(self.player1_moves, 1)
         
         else:
-            # TODO: Show it in pygame window
-            print("No moves to undo.")
+            self.draw_text_box("No moves to undo.")
+    
+    def undo_move(self, player_moves, n: int):
+        self.board.pop()  # Undo last move on the board
+        self.update(self.board) # Used to update the data about board
+        last_move = player_moves.pop()  # Remove Player's last move
+        self.draw_text_box(f"{self.players[n]} undid their last move: {last_move}")
+        self.draw_chessboard()
+        pygame.display.flip() # Refresh the display
     
     def is_draw(self):
         if len(self.player1_moves) < 2 and len(self.player2_moves) < 2:
-            # TODO: Create a window for this message
-            print("Draw offer rejected. Both players need to have made at least two moves.")
+            self.draw_text_box("Draw offer rejected. Both players need to have made at least two moves.")
             return
         
         name_text = self.players[self.current_player]
@@ -553,6 +576,23 @@ class ChessGame:
         while selected_option is None:
             selected_option = self.handle_draw(BUTTON_WIDTH-5, BUTTON_WIDTH*2+5, PAWN_BUTTON_HEIGHT+55, 45, 40, 30)
         return selected_option
+    
+    def draw_text_box(self, text, time=1000, x=BUTTON_WIDTH, y=PAWN_BUTTON_HEIGHT//2):
+        # Save the area where text will be drawn
+        text_surface = self.font.render(text, True, BLACK)
+        text_rect = text_surface.get_rect(topleft=(x, y))
+        background = self.screen.subsurface(text_rect).copy()
+        
+        # Draw text
+        self.screen.blit(text_surface, text_rect)
+        pygame.display.update(text_rect)
+        
+        # Wait
+        pygame.time.delay(time)
+        
+        # Restore background
+        self.screen.blit(background, text_rect)
+        pygame.display.update(text_rect)
     
     def handle_draw(self, x1, x2, y, width1, width2, height):
         start_time = time.time()
@@ -587,6 +627,7 @@ class ChessGame:
                     file.write(f"{self.player1}: {move1}, {self.player2}: {move2}\n")
         except IOError as e:
             print(f"Error saving to file: {e}")
+            self.draw_text_box(f"Error saving to file: {e}")
     
     def perform_castling(self):
         if not self.move:
