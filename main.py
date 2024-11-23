@@ -476,6 +476,8 @@ class ChessGame:
                 self.history()
                 self.save_to_file()
                 self.quit_game()
+            self.draw_chessboard()
+            return
         if button_name == "Stop":
             self.quit_game()
     
@@ -581,6 +583,7 @@ class ChessGame:
         # Save the area where text will be drawn
         text_surface = self.font.render(text, True, BLACK)
         text_rect = text_surface.get_rect(topleft=(x, y))
+        text_rect = text_rect.clamp(self.screen.get_rect())
         background = self.screen.subsurface(text_rect).copy()
         
         # Draw text
