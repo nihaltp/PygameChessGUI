@@ -360,7 +360,6 @@ class ChessGame:
     
     def highlight_move(self, square, colour):
         """
-        TODO: Make sure it is highlighting things inside the board only
         TODO: Make a function to highlight buttons when clicked
         TODO: Make a function to highlight square/button the mouse is over
         """
@@ -466,6 +465,7 @@ class ChessGame:
                 self.button_action(button_name)
     
     def button_action(self, button_name):
+        self.highlight = False
         match button_name:
             case "History":
                 self.history()
@@ -481,7 +481,6 @@ class ChessGame:
                 self.draw_chessboard()
             case "Stop":
                 self.quit_game()
-        self.highlight = False
     
     def history(self):
         """
