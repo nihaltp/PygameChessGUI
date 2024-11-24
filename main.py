@@ -51,12 +51,13 @@ class ChessGame:
         self.check = False
         self.highlight = False
         
-        self.stockfish_path = stockfish_path
-        self.skill_level = skill_level
-        self.depth = depth
-        self.time_stockfish = time_stockfish
-        self.time_limit = time_limit
-        self.engine = chess.engine.SimpleEngine.popen_uci(self.stockfish_path)
+        if any(player.lower() in {"ai", "bot", "stockfish"} for player in self.players):
+            self.stockfish_path = stockfish_path
+            self.skill_level = skill_level
+            self.depth = depth
+            self.time_stockfish = time_stockfish
+            self.time_limit = time_limit
+            self.engine = chess.engine.SimpleEngine.popen_uci(self.stockfish_path)
         
         self.mouse_x = 0
         self.mouse_y = 0
