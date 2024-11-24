@@ -124,6 +124,12 @@ class ChessGame:
                 self.engine.quit()
     
     def process_move(self):
+        """
+        Process a move.
+        Returns False if the move results in a game over state.
+        """
+        if self.move == self.previous_move:
+            return True
         if not len(self.move) == 4:
             return True
         if self.move:
@@ -134,12 +140,12 @@ class ChessGame:
                         self.perform_castling()
                     else:
                         self.board.push(move_c)
-                    self.previous_move = move_c
+                    self.previous_move = self.move
                 else:
                     move_q = chess.Move.from_uci(self.move + "q")
                     if move_q in self.board.legal_moves:
                         self.pawn_promotion()
-                        self.previous_move = move_q
+                        self.previous_move = move_q.uci()
                 
                 self.store_moves()
                 self.check = self.board.is_check()
@@ -213,7 +219,14 @@ class ChessGame:
     
     def game(self, board):
         """
-        Main game loop method to update and draw the chessboard.
+        Update and draw the current state of the chess game on the screen.
+        
+        This method updates the internal board state and manages the drawing of the chessboard 
+        and moves on the screen. 
+        It handles first-time board drawing and subsequent move updates.
+        
+        Parameters:
+        board (chess.Board): The current state of the chess game.
         """
         self.update(board)
         if self.first_run:
@@ -226,12 +239,12 @@ class ChessGame:
             
             if not self.previous_move:
                 return
-            if (self.move == self.previous_move.uci()):
+            if (self.move == self.previous_move):
                 return
-            if(self.drawn_previous_move == self.previous_move.uci()):
+            if(self.drawn_previous_move == self.previous_move):
                 return
-            self.draw_move(self.previous_move.uci())
-            self.drawn_previous_move = self.previous_move.uci()
+            self.draw_move(self.previous_move)
+            self.drawn_previous_move = self.previous_move
         
         pygame.display.flip() # update the display
     
@@ -333,7 +346,7 @@ class ChessGame:
                 self.highlight_square(clicked_column, clicked_row, GOLD)
         
         if self.previous_move != "":
-            value = self.previous_move.uci()
+            value = self.previous_move
             move_2 = value[2:]
             self.highlight_move(move_2, BLUE_1)
         
