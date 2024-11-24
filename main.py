@@ -519,15 +519,21 @@ class ChessGame:
             self.previous_move = move
     
     def valid_moves(self):
+        """
+        Highlight all the valid moves on the chessboard by temporarily changing the color of the squares.
+        
+        This function iterates through all the legal moves and calls the `highlight_move` function to change the color of the start and end squares.
+        It then updates the display using `pygame.display.flip()` and waits for 0.5 seconds.
+        It also calls the `draw_move` function to clear the move on the chessboard.
+        """
         for move in self.board.legal_moves:
-            self.draw_chessboard() # clear the chessboard
             start_square = move.uci()[:2] 
             end_square = move.uci()[2:]
             self.highlight_move(start_square, RED)
             self.highlight_move(end_square, GOLD)
             pygame.display.flip()
             pygame.time.delay(500) # wait
-        self.draw_chessboard() # clear the chessboard at the end
+            self.draw_move(move.uci())
     
     def undo(self):
         if len(self.player1_moves) >= 1 and len(self.player2_moves) >= 1:
